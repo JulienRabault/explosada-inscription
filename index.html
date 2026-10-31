@@ -7,14 +7,14 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'; object-src 'none'">
-<meta name="color-scheme" content="light">
-<meta name="theme-color" content="#f6f3ee">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#100d0b">
 <meta name="apple-mobile-web-app-title" content="Explosada">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23f59e0b'/%3E%3Cpath d='M5.5 11.5 12 6l6.5 5.5V18h-4v-4.5h-5V18h-4z' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,700..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <section class="lock" id="lock" hidden>
@@ -25,7 +25,7 @@
 <main class="app" id="app">
   <header class="top">
     <canvas class="sky" id="sky" aria-hidden="true"></canvas>
-    <h1>Explosada 7.0</h1>
+    <h1>Explosada <span class="v">7.0</span></h1>
     <p class="subtitle">Inscription · 31 déc. → 3 janv.</p>
   </header>
 
@@ -45,10 +45,17 @@
   </section>
 
   <section id="status" hidden>
-    <div class="group status-card">
-      <p class="pill" id="status-pill"></p>
-      <h2 id="status-title"></h2>
-      <p id="status-text"></p>
+    <div class="ticket">
+      <div class="ticket-top">
+        <p class="ticket-event">Explosada 7.0 · 31.12 → 03.01</p>
+        <p class="ticket-name" id="ticket-name"></p>
+        <p class="ticket-meta" id="ticket-meta"></p>
+      </div>
+      <div class="ticket-bottom">
+        <p class="pill" id="status-pill"></p>
+        <h2 id="status-title"></h2>
+        <p id="status-text"></p>
+      </div>
     </div>
     <div class="group team" id="team" hidden>
       <p class="team-label">Ton équipe</p>
@@ -75,8 +82,17 @@
     </div>
 
     <fieldset class="step" data-n="0">
-      <h2 class="step-h">Tu ramènes rien</h2>
-      <p class="lead">Bouffe, alcool, le reste : tout est géré. Toi tu viens, et tu joues le jeu avec ton équipe.</p>
+      <dl class="infos">
+        <div><dt>Où</dt><dd>Une grande maison à moins de 2 h de Toulouse</dd></div>
+        <div><dt>Qui</dt><dd>35 personnes, en 4 équipes</dd></div>
+      </dl>
+      <div class="pass">
+        <p class="pass-label">Ta place, tout compris</p>
+        <p class="pass-price"><span class="pass-env">Environ</span> <output id="prix"></output> €</p>
+        <p class="pass-txt">La maison, la bouffe, l'alcool : tout est dedans pour les 3 nuits. Ça fait à peu près 100 € la nuit, et tu ramènes rien.</p>
+      </div>
+      <h3 class="sec-h">Au menu, des trucs comme ça</h3>
+      <ul class="lineup" id="menu"></ul>
       <p class="lead">Il me faut 2 minutes pour valider ta place.</p>
     </fieldset>
 
@@ -177,9 +193,9 @@
 <canvas class="fx" id="fx" aria-hidden="true"></canvas>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="config.js?v=2"></script>
-<script src="data.js?v=2"></script>
-<script src="sky.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="config.js?v=3"></script>
+<script src="data.js?v=3"></script>
+<script src="sky.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
    - le ciel du titre : zone() rend, en px CSS depuis le coin du canvas, l'espace où les gerbes partent toutes seules
      ({x0, x1, y0, y1}, en option max : le rayon le plus grand, et rate : moins de 1 pour que ça parte plus souvent). Plus le réveillon approche, plus ça part souvent ;
    - le calque des moments forts (zone nulle) : rien ne part tout seul, la page tire avec fire(x, y, rayon, teinte). */
-const FEU = [[245, 158, 11], [249, 115, 22], [234, 88, 12]];
+const FEU = [[245, 158, 11], [249, 115, 22], [234, 88, 12], [253, 224, 171]];
 
 function sky(canvas, zone) {
   const ctx = canvas.getContext && canvas.getContext("2d");

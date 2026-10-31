@@ -9,6 +9,9 @@ const REGLES = [
   "Je ramène personne sans prévenir avant",
   "Je paye dans les temps quand le montant tombe, sinon ma place peut partir",
 ];
+// la couverture : le prix à annoncer (maison, bouffe et alcool pour les 3 nuits) et le genre de repas prévus
+const PRIX = 320;
+const MENU = ["Raclette", "Tartiflette", "Hot-dogs au barbec", "Pâtes carbo", "Salade gersoise"];
 const TEL = /^[+\d][\d .()-]{5,24}$/;
 const NOM = /^\p{L}[\p{L}'’ .-]*$/u;
 const CHECK = '<path d="M5 12.5l4.5 4.5L19 7.5"/>';
@@ -30,6 +33,12 @@ function tick() {
   for (const [k, v] of Object.entries({ viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2.6", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", class: "tick" })) s.setAttribute(k, v);
   s.innerHTML = CHECK;
   return s;
+}
+
+// 349,5 → « 349,50 », 200 → « 200 » : les centimes seulement quand il y en a
+function euros(n) {
+  const x = Number(n);
+  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: Number.isInteger(x) ? 0 : 2, maximumFractionDigits: 2 }).format(x);
 }
 
 let toastTimer = 0;
@@ -152,7 +161,7 @@ function aller(n, defiler = true) {
   if (n > avant && n > 0) setTimeout(petard, n === 1 ? 40 : 380);
   $("step-count").textContent = n + " sur " + DERNIERE;
   $("back").textContent = editing && n === 1 ? "Annuler" : "Retour";
-  $("send").textContent = n === DERNIERE ? (editing ? "Enregistrer" : "Envoyer") : n === 0 ? "Commencer" : "Suivant";
+  $("send").textContent = n === DERNIERE ? (editing ? "Enregistrer" : "Envoyer") : n === 0 ? "Prendre ma place" : "Suivant";
   $("send-foot").hidden = n !== DERNIERE || editing;
   $("msg").textContent = "";
   marquer(null);
@@ -251,6 +260,10 @@ let fiche = null;
 function montrerStatut(moi, envoyee) {
   fiche = moi;
   const t = STATUTS_TXT[moi.statut] || STATUTS_TXT["reçue"];
+  // le billet : le prénom en grand, puis le nom et le nombre de nuits
+  const n = (moi.nuits || []).length;
+  $("ticket-name").textContent = moi.prenom || "";
+  $("ticket-meta").textContent = [moi.nom, n ? n + (n > 1 ? " nuits" : " nuit") : ""].filter(Boolean).join(" · ");
   const pill = $("status-pill");
   pill.textContent = t.pill;
   pill.className = "pill " + t.couleur;
@@ -260,7 +273,7 @@ function montrerStatut(moi, envoyee) {
   const paye = moi.statut === "validée" && moi.montant && moi.payer;
   $("pay").hidden = !paye;
   if (paye) {
-    $("pay-amount").textContent = String(moi.montant);
+    $("pay-amount").textContent = euros(moi.montant);
     $("pay-how").textContent = moi.payer;
   }
 
@@ -277,11 +290,12 @@ function montrerStatut(moi, envoyee) {
   const recap = $("recap");
   recap.replaceChildren(h("h2", { class: "sec-h" }, "Ce que t'as répondu"), h("dl", { class: "group" },
     ligne("Nom", [moi.prenom, moi.nom].filter(Boolean).join(" ")),
-    ligne("Nuits", (moi.nuits || []).join(", ")),
+    ligne("Nuits", (moi.nuits || []).join("\n")),
     ligne("Arrivée", moi.arrivee),
     ligne("Transport", voiture ? `${moi.transport}, ${moi.places} place${Number(moi.places) > 1 ? "s" : ""} libre${Number(moi.places) > 1 ? "s" : ""}` : moi.transport),
     ligne("Allergies", moi.allergies),
-    ligne("Mange pas", [moi.pasManger, ...(moi.regime || [])].filter(Boolean).join(", ")),
+    ligne("Mange pas", moi.pasManger),
+    ligne("Régime", (moi.regime || []).join(", ")),
     ligne("Appétit", moi.appetit),
     ligne("Alcool", [moi.alcool, ...(moi.boissons || [])].filter(Boolean).join(", ")),
     ligne("Sait faire", moi.atouts),
@@ -358,6 +372,8 @@ function start() {
   segments("alcool", ALCOOLS);
   options("boissons", BOISSONS, "checkbox");
   $("regles-liste").append(...REGLES.map(r => h("li", null, r)));
+  $("prix").textContent = euros(PRIX);
+  $("menu").append(...MENU.map(m => h("li", null, m)));
   form.addEventListener("change", e => {
     // dès qu'on corrige ce qui était signalé, le message s'en va
     if (e.target.closest(".bad")) { marquer(null); $("msg").textContent = ""; }
