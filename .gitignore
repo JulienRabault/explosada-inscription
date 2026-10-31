@@ -1,0 +1,5 @@
+BRIEF.md
+*.xlsx
+*.csv
+.DS_Store
+Thumbs.db

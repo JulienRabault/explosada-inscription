@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Explosada 7.0 · Inscription</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f6f3ee">
+<meta name="apple-mobile-web-app-title" content="Explosada">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23f59e0b'/%3E%3Cpath d='M5.5 11.5 12 6l6.5 5.5V18h-4v-4.5h-5V18h-4z' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+<section class="lock" id="lock" hidden>
+  <h1>Explosada 7.0</h1>
+  <p id="lock-text">Cette page s'ouvre avec le lien de partage. Rouvre le lien reçu dans le groupe, ou demande-le à l'orga.</p>
+</section>
+
+<main class="app" id="app">
+  <header class="top">
+    <canvas class="sky" id="sky" aria-hidden="true"></canvas>
+    <h1>Explosada 7.0</h1>
+    <p class="subtitle">Inscription · 31 déc. → 3 janv.</p>
+  </header>
+
+  <p class="essai" id="essai" hidden>Mode essai : rien n'est envoyé, tes réponses restent sur ce téléphone.</p>
+
+  <section id="loading" class="state" aria-live="polite"><p>Chargement…</p></section>
+
+  <section id="closed" class="state" hidden>
+    <h2>Les inscriptions sont fermées</h2>
+    <p>Si t'étais pas encore inscrit, écris-moi.</p>
+  </section>
+
+  <section id="problem" class="state" hidden>
+    <h2>Ça répond pas</h2>
+    <p id="problem-text">Vérifie ta connexion et réessaie.</p>
+    <button type="button" class="btn" id="retry">Réessayer</button>
+  </section>
+
+  <section id="status" hidden>
+    <div class="group status-card">
+      <p class="pill" id="status-pill"></p>
+      <h2 id="status-title"></h2>
+      <p id="status-text"></p>
+    </div>
+    <div class="group team" id="team" hidden>
+      <p class="team-label">Ton équipe</p>
+      <p class="team-name" id="team-name"></p>
+      <p class="team-plan" id="team-plan"></p>
+    </div>
+    <div class="group pay-card" id="pay" hidden>
+      <p class="pay-label">À payer</p>
+      <p class="pay-amount"><output id="pay-amount"></output> €</p>
+      <p class="pay-how" id="pay-how"></p>
+    </div>
+    <div class="recap" id="recap"></div>
+    <div class="group" id="edit-group"><button type="button" class="row-btn" id="edit">Modifier mes réponses</button></div>
+  </section>
+
+  <form id="form" novalidate hidden>
+    <div class="stepbar" id="stepbar" hidden>
+      <div class="stepbar-row">
+        <button type="button" class="nav-back" id="back">Retour</button>
+        <span class="step-count" id="step-count"></span>
+        <span></span>
+      </div>
+      <div class="fuse" id="fuse" aria-hidden="true"><i class="fuse-fill"></i><i class="fuse-run"><i class="fuse-spark"></i></i></div>
+    </div>
+
+    <fieldset class="step" data-n="0">
+      <h2 class="step-h">Tu ramènes rien</h2>
+      <p class="lead">Bouffe, alcool, le reste : tout est géré. Toi tu viens, et tu joues le jeu avec ton équipe.</p>
+      <p class="lead">Il me faut 2 minutes pour valider ta place.</p>
+    </fieldset>
+
+    <fieldset class="step" data-n="1">
+      <h2 class="step-h">Toi</h2>
+      <div class="group">
+        <label class="field"><span>Prénom</span><input name="prenom" maxlength="30" autocomplete="given-name" autocapitalize="words" enterkeyhint="next" placeholder="Tom"></label>
+        <label class="field"><span>Nom</span><input name="nom" maxlength="40" autocomplete="family-name" autocapitalize="words" enterkeyhint="next" placeholder="Durand"></label>
+        <label class="field"><span>Téléphone</span><input name="tel" type="tel" maxlength="25" autocomplete="tel" enterkeyhint="done" placeholder="06 12 34 56 78"></label>
+      </div>
+      <p class="sec-f">Le nom, c'est pour retrouver ton virement.</p>
+    </fieldset>
+
+    <fieldset class="step" data-n="2">
+      <h2 class="step-h">Ta venue</h2>
+      <h3 class="sec-h">Nuits sur place</h3>
+      <div class="group" id="nuits" data-name="nuits" role="group" aria-label="Nuits"></div>
+      <h3 class="sec-h">Tu arrives quand ?</h3>
+      <div class="group" id="arrivee" data-name="arrivee" role="radiogroup" aria-label="Arrivée"></div>
+      <h3 class="sec-h">Tu viens comment ?</h3>
+      <div class="group" id="transport" data-name="transport" role="radiogroup" aria-label="Transport"></div>
+      <div class="group" id="voiture-group" hidden>
+        <label class="field"><span>Places libres</span><input name="places" type="number" min="0" max="8" step="1" inputmode="numeric" enterkeyhint="next" placeholder="3"></label>
+      </div>
+      <p class="sec-f" id="voiture-foot" hidden>Sans toi, combien de personnes peuvent monter.</p>
+      <div class="group">
+        <label class="field"><span>Tu pars d'où ?</span><input name="depart" maxlength="60" autocomplete="address-level2" enterkeyhint="done" placeholder="Toulouse"></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="step" data-n="3">
+      <h2 class="step-h">Bouffe</h2>
+      <p class="lead">Tout est acheté pour vous, donc faut que je sache quoi prendre.</p>
+      <div class="group">
+        <label class="field"><span class="sr">Allergies</span><input name="allergies" maxlength="300" enterkeyhint="next" placeholder="Une allergie ? (arachides, crustacés...)"></label>
+        <label class="field"><span class="sr">Ce que tu manges pas</span><input name="pasManger" maxlength="200" enterkeyhint="done" placeholder="Un truc que tu manges pas"></label>
+      </div>
+      <p class="sec-f">Même une allergie légère, dis-le.</p>
+      <h3 class="sec-h">Régime</h3>
+      <div class="group" id="regime" data-name="regime" role="group" aria-label="Régime"></div>
+      <h3 class="sec-h" id="appetit-h">Ton appétit</h3>
+      <div class="seg" id="appetit" data-name="appetit" role="radiogroup" aria-labelledby="appetit-h"></div>
+      <h3 class="sec-h" id="alcool-h">Côté alcool</h3>
+      <div class="seg" id="alcool" data-name="alcool" role="radiogroup" aria-labelledby="alcool-h"></div>
+      <div id="boissons-box" hidden>
+        <h3 class="sec-h" id="boissons-h">Tu bois plutôt</h3>
+        <div class="group" id="boissons" data-name="boissons" role="group" aria-labelledby="boissons-h"></div>
+      </div>
+      <p class="sec-f">Juste pour savoir combien acheter, personne juge.</p>
+    </fieldset>
+
+    <fieldset class="step" data-n="4">
+      <h2 class="step-h">Le deal</h2>
+      <p class="lead">Vous serez 4 équipes de couleur, je te dis la tienne plus tard. Chaque jour, chaque équipe prend une mission (cuisine, courses, vaisselle, ménage...) et ça tourne : celle qui cuisine un jour fait le ménage un autre. Ça se choisit pas, sinon personne irait au ménage.</p>
+      <p class="deal-lead">C'est une maison pour 35, pas un hôtel. Faut juste que tout le monde joue le jeu :</p>
+      <ul class="group rules" id="regles-liste"></ul>
+      <div class="group" id="regles-ok-group">
+        <label class="opt rule"><input type="checkbox" role="switch" name="regles-ok"><span class="txt">Ok pour les 6</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="step" data-n="5">
+      <h2 class="step-h">Pour finir</h2>
+      <p class="lead">Rien d'obligatoire ici, mais ça m'aide à faire les équipes.</p>
+      <div class="group">
+        <label class="field"><span class="sr">Ce que tu sais bien faire</span><input name="atouts" maxlength="200" enterkeyhint="next" placeholder="Un truc que tu sais bien faire"></label>
+        <label class="field"><span class="sr">Ce que tu préfères pas faire</span><input name="pasFaire" maxlength="200" enterkeyhint="next" placeholder="Un truc que tu préfères pas faire"></label>
+      </div>
+      <div class="group">
+        <label class="opt rule"><input type="checkbox" role="switch" name="mixer" value="Oui" aria-controls="mixer-plus"><span class="txt">Je veux mixer</span></label>
+        <div class="fold" id="mixer-plus" hidden>
+          <label class="field"><span class="sr">Ce que tu passes</span><input name="son" maxlength="100" enterkeyhint="next" placeholder="Tu passes quoi ? (house, rap, 2000...)"></label>
+          <label class="field"><span class="sr">Quand</span><input name="creneau" maxlength="60" enterkeyhint="done" placeholder="Plutôt quand ? (le 31 vers 1h...)"></label>
+        </div>
+      </div>
+      <div class="group">
+        <label class="opt rule"><input type="checkbox" role="switch" name="activite-on" aria-controls="activite-plus"><span class="txt">Je veux proposer une activité</span></label>
+        <div class="fold" id="activite-plus" hidden>
+          <label class="field area"><span class="sr">L'activité</span><textarea name="activite" rows="2" maxlength="300" placeholder="Laquelle ? Un jeu, un tournoi, un quiz..."></textarea></label>
+        </div>
+      </div>
+      <p class="sec-f" id="cale-foot">On en parle avant pour caler ça dans le planning, je te dis si ça passe.</p>
+      <h3 class="sec-h">Un mot</h3>
+      <div class="group">
+        <label class="field area"><span class="sr">Mot libre</span><textarea name="mot" rows="2" maxlength="500" placeholder="Autre chose à me dire ?"></textarea></label>
+      </div>
+    </fieldset>
+
+    <p class="msg" id="msg" role="alert"></p>
+    <div class="actions">
+      <p class="sec-f center" id="send-foot">Tu pourras modifier tes réponses après.</p>
+      <button type="submit" class="btn primary" id="send">Commencer</button>
+    </div>
+  </form>
+
+  <footer class="foot"><p id="foot-count"></p></footer>
+</main>
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="config.js?v=2"></script>
+<script src="data.js?v=2"></script>
+<script src="sky.js?v=2"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>
