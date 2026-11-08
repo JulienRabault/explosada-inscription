@@ -14,14 +14,14 @@ const REGLES = [
 const LECTURE = 1200; // le temps de lire une carte avant de pouvoir la passer
 const CALME = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // la couverture : le prix à annoncer pour les 3 nuits si on est 30, et ce qu'il comprend
-const PRIX = 280;
+const PRIX = 275;
 const DEDANS = ["La maison", "Tous les repas", "L'alcool", "La musique", "Le DJ", "La déco"];
 const TEL = /^[+\d][\d .()-]{5,24}$/;
 const NOM = /^\p{L}[\p{L}'’ .-]*$/u;
 const INSTA = /^[\w.]{1,30}$/;
 const DERNIERE = 2;
 
-// la typo française : une espace fine insécable avant « : ; ? ! », et le nombre collé à son unité (280 €, 48 h, 3 nuits).
+// la typo française : une espace fine insécable avant « : ; ? ! », et le nombre collé à son unité (275 €, 48 h, 3 nuits).
 // Comme ça, aucun deux-points ni aucun « € » ne tombe seul en début de ligne.
 function fr(s) {
   return String(s)
