@@ -7,7 +7,13 @@ const API = (window.API_URL || "").trim();
 
 // listes autorisées : les mêmes que dans apps-script/Code.gs, qui les revérifie de son côté
 const NUITS = ["31 déc. → 1er janv.", "1er → 2 janv.", "2 → 3 janv."];
-const ARRIVEES = ["Le 31 au matin", "Le 31 l'après-midi", "Le 31 en soirée", "Le 1er janvier", "Le 2 janvier"];
+const ARRIVEES = ["Le 31 l'après-midi", "Le 31 en soirée", "Le 1er janvier"];
+// ce qu'on peut prendre : deux nuits d'affilée au moins (le script refuse le reste). nuits = rangs dans NUITS
+const SEJOURS = [
+  { nuits: [0, 1, 2], dates: "Jeu 31 → dim 3", note: "Tout le séjour" },
+  { nuits: [0, 1], dates: "Jeu 31 → sam 2", note: "Avec le réveillon" },
+  { nuits: [1, 2], dates: "Ven 1er → dim 3", note: "Sans le réveillon" },
+];
 const TRANSPORTS = ["J'ai une voiture", "Je cherche une place en voiture", "Je me débrouille"];
 const REGIMES = ["Végétarien", "Végan", "Sans porc", "Halal", "Sans gluten", "Sans lactose"];
 const APPETITS = ["Petit", "Normal", "Gros"];

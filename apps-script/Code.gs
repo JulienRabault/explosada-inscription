@@ -11,7 +11,8 @@
  * - creerLienDePartage() : affiche le lien dans le journal d'exécution.
  * - changerLienDePartage() : si le lien a fuité, l'ancien cesse de marcher.
  * - fermerLaPage() / rouvrirLaPage() : coupe tout d'un coup, sans rien effacer.
- * Les statuts (reçue, validée, payée, annulée) se changent à la main dans la colonne B de l'onglet Inscriptions.
+ * Les statuts (reçue, à payer, payée, annulée) se changent à la main dans la colonne B de l'onglet Inscriptions.
+ * Une place n'est validée qu'une fois payée : « à payer » montre le montant et comment payer.
  */
 
 const PAGE = "https://julienrabault.github.io/explosada-inscription/";
@@ -22,20 +23,20 @@ const PAR_MINUTE_CREATIONS = 15;
 const PAR_MINUTE_JETON = 20;
 const PAR_MINUTE_TOUS = 120;
 const CLE_PROP = "CLE";
-const VERSION_REGLES = 1;
+const VERSION_REGLES = 3; // v3 : les 7 règles du cahier des charges (paiement sous 48 h, +1, équipes, casse, musique, respect, on kiffe)
 
-const STATUTS = ["reçue", "validée", "payée", "annulée"];
+const STATUTS = ["reçue", "à payer", "payée", "annulée"];
 const NUITS = ["31 déc. → 1er janv.", "1er → 2 janv.", "2 → 3 janv."];
-const ARRIVEES = ["Le 31 au matin", "Le 31 l'après-midi", "Le 31 en soirée", "Le 1er janvier", "Le 2 janvier"];
+const ARRIVEES = ["Le 31 l'après-midi", "Le 31 en soirée", "Le 1er janvier"];
 const TRANSPORTS = ["J'ai une voiture", "Je cherche une place en voiture", "Je me débrouille"];
 const REGIMES = ["Végétarien", "Végan", "Sans porc", "Halal", "Sans gluten", "Sans lactose"];
 const APPETITS = ["Petit", "Normal", "Gros"];
 const ALCOOLS = ["Je bois pas", "Un peu", "Normal", "Pas mal"];
 const BOISSONS = ["Bière", "Vin", "Alcool fort, cocktails", "Champagne"];
 // Les équipes ne se choisissent pas : Julien met une couleur à chacun dans la Sheet, et elles tournent sur les tâches.
-const COULEURS = ["Rouge", "Bleu", "Vert", "Jaune"];
+const COULEURS = ["Rouge", "Bleu", "Vert", "Jaune", "Orange", "Violet"];
 const MIXER = ["Oui", "Non"];
-const NB_REGLES = 6;
+const NB_REGLES = 7;
 
 const COLS = [
   ["date", "Reçue le", 16],
@@ -43,6 +44,7 @@ const COLS = [
   ["prenom", "Prénom", 14],
   ["nom", "Nom", 16],
   ["tel", "Téléphone", 15],
+  ["insta", "Insta", 16],
   ["nuits", "Nuits", 30],
   ["arrivee", "Arrivée", 20],
   ["transport", "Transport", 26],
@@ -190,7 +192,9 @@ function inscrire(req, jeton) {
     if (data.some((r, n) => n !== i && memeNom(r[iPrenom], f.prenom) && memeNom(r[iNom], f.nom))) throw oups("Il y a déjà une inscription à ce nom");
     // l'accord sur les règles garde sa date tant que les règles n'ont pas changé
     const gardeRegles = String(data[i][colIndex("regles")]).includes(" v" + VERSION_REGLES + " ");
-    const ligne = COLS.map(([k], j) => (k === "date" || k === "statut" || k === "jeton" || k === "couleur" || (k === "regles" && gardeRegles) ? data[i][j] : k === "maj" ? new Date() : f[k]));
+    // un champ que ce questionnaire n'envoie pas (la venue, la bouffe... viennent plus tard) garde sa valeur
+    const garde = (k, j) => k === "date" || k === "statut" || k === "jeton" || k === "couleur" || (k === "regles" && gardeRegles) || (k !== "maj" && f[k] === undefined);
+    const ligne = COLS.map(([k], j) => (garde(k, j) ? data[i][j] : k === "maj" ? new Date() : f[k]));
     sh.getRange(i + 2, 1, 1, COLS.length).setValues([ligne]);
     return { moi: vue(ligne), jeton };
   }
@@ -202,7 +206,7 @@ function inscrire(req, jeton) {
   creations();
   // le téléphone fabrique son jeton avant d'envoyer : si la réponse se perd, le renvoi retombe sur la même fiche
   const nouveau = /^[\w-]{32,64}$/.test(jeton) ? jeton : Utilities.getUuid().replace(/-/g, "");
-  const ligne = COLS.map(([k]) => (k === "date" || k === "maj" ? new Date() : k === "statut" ? "reçue" : k === "jeton" ? nouveau : k === "couleur" ? "" : f[k]));
+  const ligne = COLS.map(([k]) => (k === "date" || k === "maj" ? new Date() : k === "statut" ? "reçue" : k === "jeton" ? nouveau : k === "couleur" || f[k] === undefined ? "" : f[k]));
   sh.appendRow(ligne);
   return { moi: vue(ligne), jeton: nouveau };
 }
@@ -219,33 +223,52 @@ function moi(req, jeton) {
 /* ---------- validation ---------- */
 
 function champs(req) {
-  const nuits = liste(req.nuits, NUITS, 1, 3, "Choisis au moins une nuit");
-  const transport = choix(req.transport, TRANSPORTS, "Dis comment tu viens");
-  const voiture = transport === TRANSPORTS[0];
   const regles = req.regles;
   if (!Array.isArray(regles) || regles.length !== NB_REGLES || !regles.every(x => x === true)) throw oups("Il faut cocher toutes les règles");
-  const mixer = choix(req.mixer, MIXER, "Dis si tu veux mixer");
-  const alcool = choix(req.alcool, ALCOOLS, "Dis-moi côté alcool");
   const tel = String(req.tel == null ? "" : req.tel).trim();
   if (!/^[+\d][\d .()-]{5,24}$/.test(tel)) throw oups("Ton numéro n'a pas l'air bon");
-  const places = voiture ? Math.round(Number(req.places)) : "";
-  if (voiture && !(places >= 0 && places <= 8)) throw oups("Entre 0 et 8 places libres");
-  return {
+  const f = {
     prenom: nomPropre(req.prenom, "Il faut ton prénom", 30),
     nom: nomPropre(req.nom, "Il faut ton nom", 40),
     tel,
-    nuits: nuits.join(" · "),
-    arrivee: choix(req.arrivee, ARRIVEES, "Dis quand tu arrives"),
-    transport,
-    places,
-    depart: texte(req.depart, 60),
+    insta: pseudo(req.insta),
+    regles: NB_REGLES + "/" + NB_REGLES + " acceptées v" + VERSION_REGLES + " le " + Utilities.formatDate(new Date(), "Europe/Paris", "dd/MM HH:mm"),
+  };
+  // trois blocs viennent avec le 2e questionnaire : absents, ils restent vides ; envoyés, ils sont vérifiés en entier
+  if (req.nuits !== undefined) Object.assign(f, venue(req));
+  if (req.appetit !== undefined) Object.assign(f, bouffe(req));
+  if (req.mixer !== undefined) Object.assign(f, extras(req));
+  return f;
+}
+
+function venue(req) {
+  // deux nuits d'affilée au moins : pas de passage pour une soirée, pas de 31 puis retour le 2
+  const nuits = liste(req.nuits, NUITS, 2, 3, "Deux nuits d'affilée minimum");
+  if (nuits.length === 2 && nuits[0] === NUITS[0] && nuits[1] === NUITS[2]) throw oups("Deux nuits d'affilée minimum");
+  const arrivee = choix(req.arrivee, ARRIVEES, "Dis quand tu arrives");
+  if ((arrivee === ARRIVEES[2]) === nuits.includes(NUITS[0])) throw oups("Ton arrivée colle pas avec tes nuits");
+  const transport = choix(req.transport, TRANSPORTS, "Dis comment tu viens");
+  const voiture = transport === TRANSPORTS[0];
+  const places = voiture ? Math.round(Number(req.places)) : "";
+  if (voiture && !(places >= 0 && places <= 8)) throw oups("Entre 0 et 8 places libres");
+  return { nuits: nuits.join(" · "), arrivee, transport, places, depart: texte(req.depart, 60) };
+}
+
+function bouffe(req) {
+  const alcool = choix(req.alcool, ALCOOLS, "Dis-moi côté alcool");
+  return {
     allergies: texte(req.allergies, 300),
     pasManger: texte(req.pasManger, 200),
     regime: liste(req.regime, REGIMES, 0, REGIMES.length, "Régime inconnu").join(" · "),
     appetit: choix(req.appetit, APPETITS, "Dis-moi ton appétit"),
     alcool,
     boissons: alcool === ALCOOLS[0] ? "" : liste(req.boissons, BOISSONS, 0, BOISSONS.length, "Boisson inconnue").join(" · "),
-    regles: NB_REGLES + "/" + NB_REGLES + " acceptées v" + VERSION_REGLES + " le " + Utilities.formatDate(new Date(), "Europe/Paris", "dd/MM HH:mm"),
+  };
+}
+
+function extras(req) {
+  const mixer = choix(req.mixer, MIXER, "Dis si tu veux mixer");
+  return {
     atouts: texte(req.atouts, 200),
     pasFaire: texte(req.pasFaire, 200),
     activite: texte(req.activite, 300),
@@ -254,6 +277,14 @@ function champs(req) {
     creneau: mixer === "Oui" ? texte(req.creneau, 60) : "",
     mot: texte(req.mot, 500),
   };
+}
+
+// l'Insta est obligatoire : un pseudo, rangé avec son @
+function pseudo(v) {
+  const s = String(v == null ? "" : v).trim().replace(/^@+/, "");
+  if (!s) throw oups("Il faut ton Insta");
+  if (!/^[\w.]{1,30}$/.test(s)) throw oups("Ton Insta n'a pas l'air bon");
+  return "@" + s;
 }
 
 function liste(v, permis, min, max, message) {
@@ -284,11 +315,11 @@ function vue(r) {
   const o = {};
   COLS.forEach(([k], i) => (o[k] = r[i] instanceof Date ? r[i].getTime() : typeof r[i] === "string" ? sansApostrophe(r[i]) : r[i]));
   const statut = STATUTS.includes(o.statut) ? o.statut : "reçue";
-  const sert = oui(2) && statut === "validée";
+  const sert = oui(2) && statut === "à payer";
   const montant = Number(reglage(1));
   return {
     statut,
-    prenom: o.prenom, nom: o.nom, tel: o.tel,
+    prenom: o.prenom, nom: o.nom, tel: o.tel, insta: o.insta,
     nuits: o.nuits ? String(o.nuits).split(" · ") : [],
     arrivee: o.arrivee, transport: o.transport, places: o.places, depart: o.depart,
     allergies: o.allergies, pasManger: o.pasManger, regime: o.regime ? String(o.regime).split(" · ") : [],

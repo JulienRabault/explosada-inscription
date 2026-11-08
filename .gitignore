@@ -3,3 +3,4 @@ BRIEF.md
 *.csv
 .DS_Store
 Thumbs.db
+.impeccable/

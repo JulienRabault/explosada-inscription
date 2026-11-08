@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,700..800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 <section class="lock" id="lock" hidden>
@@ -26,7 +26,7 @@
   <header class="top">
     <canvas class="sky" id="sky" aria-hidden="true"></canvas>
     <h1>Explosada <span class="v">7.0</span></h1>
-    <p class="subtitle">Inscription · 31 déc. → 3 janv.</p>
+    <p class="subtitle"><span class="sub-k">Inscription</span> <span class="sub-d">31 déc. → 3 janv.</span> <span class="sub-cd" id="countdown" hidden></span></p>
   </header>
 
   <p class="essai" id="essai" hidden>Mode essai : rien n'est envoyé, tes réponses restent sur ce téléphone.</p>
@@ -47,7 +47,7 @@
   <section id="status" hidden>
     <div class="ticket">
       <div class="ticket-top">
-        <p class="ticket-event">Explosada 7.0 · 31.12 → 03.01</p>
+        <p class="ticket-event"><span>Explosada 7.0 · 31.12 → 03.01</span> <span class="ticket-cd" id="ticket-cd"></span></p>
         <p class="ticket-name" id="ticket-name"></p>
         <p class="ticket-meta" id="ticket-meta"></p>
       </div>
@@ -64,9 +64,15 @@
     </div>
     <div class="group pay-card" id="pay" hidden>
       <p class="pay-label">À payer</p>
-      <p class="pay-amount"><output id="pay-amount"></output> €</p>
+      <p class="pay-amount"><output id="pay-amount"></output>&nbsp;€</p>
       <p class="pay-how" id="pay-how"></p>
     </div>
+    <h2 class="sec-h">La suite</h2>
+    <dl class="group suite">
+      <div class="recap-row"><dt>Fin novembre</dt><dd>Un deuxième formulaire : allergies, régime, trajet, draps.</dd></div>
+      <div class="recap-row"><dt>Mi-décembre</dt><dd>Le programme : les activités (pas obligatoires) et les soirées à thème.</dd></div>
+    </dl>
+    <p class="sec-f">On se fait pas un centime dessus. Les courses se font chez Metro ou au Pas de la Case pour payer le moins possible. Si des gens s'ajoutent, ça baisse pour tout le monde. Ce qui reste à la fin part en tombola.</p>
     <div class="recap" id="recap"></div>
     <div class="group" id="edit-group"><button type="button" class="row-btn" id="edit">Modifier mes réponses</button></div>
   </section>
@@ -83,17 +89,21 @@
 
     <fieldset class="step" data-n="0">
       <dl class="infos">
-        <div><dt>Où</dt><dd>Une grande maison à moins de 2 h de Toulouse</dd></div>
-        <div><dt>Qui</dt><dd>35 personnes, en 4 équipes</dd></div>
+        <div><dt>Où</dt><dd>Sûrement au Domaine de la Miraclette, à&nbsp;Lias (Gers). 35 min de Toulouse.</dd></div>
+        <div><dt>Qui</dt><dd>Une trentaine, en 6 équipes</dd></div>
       </dl>
       <div class="pass">
-        <p class="pass-label">Ta place, tout compris</p>
-        <p class="pass-price"><span class="pass-env">Environ</span> <output id="prix"></output> €</p>
-        <p class="pass-txt">La maison, la bouffe, l'alcool : tout est dedans pour les 3 nuits. Ça fait à peu près 100 € la nuit, et tu ramènes rien.</p>
+        <div class="pass-top">
+          <p class="pass-price"><span class="pass-env">Environ</span> <output id="prix"></output>&nbsp;€</p>
+          <p class="pass-txt">Ta place, tout compris, pour les 3&nbsp;nuits.</p>
+        </div>
+        <p class="pass-bottom">Calculé pour 30. Plus on est, moins c'est cher.</p>
       </div>
-      <h3 class="sec-h">Au menu, des trucs comme ça</h3>
-      <ul class="lineup" id="menu"></ul>
-      <p class="lead">Il me faut 2 minutes pour valider ta place.</p>
+      <h3 class="sec-h">Dedans</h3>
+      <ul class="lineup" id="dedans"></ul>
+      <p class="sec-f">Pas dedans : le trajet, tes clopes et tes extras.</p>
+      <p class="lead">Il me faut 2 minutes pour noter ta place.</p>
+      <p class="lead">Tu paies sous 48 h, et ta place est validée quand c'est payé. On avance l'argent de la maison : inscris-toi que si t'es sûr de venir.</p>
     </fieldset>
 
     <fieldset class="step" data-n="1">
@@ -101,85 +111,23 @@
       <div class="group">
         <label class="field"><span>Prénom</span><input name="prenom" maxlength="30" autocomplete="given-name" autocapitalize="words" enterkeyhint="next" placeholder="Tom"></label>
         <label class="field"><span>Nom</span><input name="nom" maxlength="40" autocomplete="family-name" autocapitalize="words" enterkeyhint="next" placeholder="Durand"></label>
-        <label class="field"><span>Téléphone</span><input name="tel" type="tel" maxlength="25" autocomplete="tel" enterkeyhint="done" placeholder="06 12 34 56 78"></label>
+        <label class="field"><span>Téléphone</span><input name="tel" type="tel" maxlength="25" autocomplete="tel" enterkeyhint="next" placeholder="06 12 34 56 78"></label>
+        <label class="field"><span>Insta</span><input name="insta" maxlength="31" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="@tom"></label>
       </div>
       <p class="sec-f">Le nom, c'est pour retrouver ton virement.</p>
     </fieldset>
 
+
+
     <fieldset class="step" data-n="2">
-      <h2 class="step-h">Ta venue</h2>
-      <h3 class="sec-h">Nuits sur place</h3>
-      <div class="group" id="nuits" data-name="nuits" role="group" aria-label="Nuits"></div>
-      <h3 class="sec-h">Tu arrives quand ?</h3>
-      <div class="group" id="arrivee" data-name="arrivee" role="radiogroup" aria-label="Arrivée"></div>
-      <h3 class="sec-h">Tu viens comment ?</h3>
-      <div class="group" id="transport" data-name="transport" role="radiogroup" aria-label="Transport"></div>
-      <div class="group" id="voiture-group" hidden>
-        <label class="field"><span>Places libres</span><input name="places" type="number" min="0" max="8" step="1" inputmode="numeric" enterkeyhint="next" placeholder="3"></label>
-      </div>
-      <p class="sec-f" id="voiture-foot" hidden>Sans toi, combien de personnes peuvent monter.</p>
-      <div class="group">
-        <label class="field"><span>Tu pars d'où ?</span><input name="depart" maxlength="60" autocomplete="address-level2" enterkeyhint="done" placeholder="Toulouse"></label>
-      </div>
-    </fieldset>
-
-    <fieldset class="step" data-n="3">
-      <h2 class="step-h">Bouffe</h2>
-      <p class="lead">Tout est acheté pour vous, donc faut que je sache quoi prendre.</p>
-      <div class="group">
-        <label class="field"><span class="sr">Allergies</span><input name="allergies" maxlength="300" enterkeyhint="next" placeholder="Une allergie ? (arachides, crustacés...)"></label>
-        <label class="field"><span class="sr">Ce que tu manges pas</span><input name="pasManger" maxlength="200" enterkeyhint="done" placeholder="Un truc que tu manges pas"></label>
-      </div>
-      <p class="sec-f">Même une allergie légère, dis-le.</p>
-      <h3 class="sec-h">Régime</h3>
-      <div class="group" id="regime" data-name="regime" role="group" aria-label="Régime"></div>
-      <h3 class="sec-h" id="appetit-h">Ton appétit</h3>
-      <div class="seg" id="appetit" data-name="appetit" role="radiogroup" aria-labelledby="appetit-h"></div>
-      <h3 class="sec-h" id="alcool-h">Côté alcool</h3>
-      <div class="seg" id="alcool" data-name="alcool" role="radiogroup" aria-labelledby="alcool-h"></div>
-      <div id="boissons-box" hidden>
-        <h3 class="sec-h" id="boissons-h">Tu bois plutôt</h3>
-        <div class="group" id="boissons" data-name="boissons" role="group" aria-labelledby="boissons-h"></div>
-      </div>
-      <p class="sec-f">Juste pour savoir combien acheter, personne juge.</p>
-    </fieldset>
-
-    <fieldset class="step" data-n="4">
       <h2 class="step-h">Le deal</h2>
-      <p class="lead">Vous serez 4 équipes de couleur, je te dis la tienne plus tard. Chaque jour, chaque équipe prend une mission (cuisine, courses, vaisselle, ménage...) et ça tourne : celle qui cuisine un jour fait le ménage un autre. Ça se choisit pas, sinon personne irait au ménage.</p>
-      <p class="deal-lead">C'est une maison pour 35, pas un hôtel. Faut juste que tout le monde joue le jeu :</p>
-      <ul class="group rules" id="regles-liste"></ul>
-      <div class="group" id="regles-ok-group">
-        <label class="opt rule"><input type="checkbox" role="switch" name="regles-ok"><span class="txt">Ok pour les 6</span></label>
-      </div>
+      <p class="lead">Vous serez 6 équipes de couleur, je te dis la tienne plus tard. Sur le séjour, ton équipe a 3 missions, une par jour : un repas, une vaisselle et un truc en plus (la déco, l'apéro du 31, le ménage ou animer une soirée). Ça se choisit pas, sinon personne irait à la vaisselle.</p>
+      <p class="deal-lead">C'est une grande maison, pas un hôtel. Sept règles : lis-les, et glisse chaque carte à droite si t'es ok.</p>
+      <div class="deck" id="deck"></div>
+      <p class="sec-f center" id="deck-msg" aria-live="polite"></p>
+      <input type="checkbox" name="regles-ok" hidden>
     </fieldset>
 
-    <fieldset class="step" data-n="5">
-      <h2 class="step-h">Pour finir</h2>
-      <p class="lead">Rien d'obligatoire ici, mais ça m'aide à faire les équipes.</p>
-      <div class="group">
-        <label class="field"><span class="sr">Ce que tu sais bien faire</span><input name="atouts" maxlength="200" enterkeyhint="next" placeholder="Un truc que tu sais bien faire"></label>
-        <label class="field"><span class="sr">Ce que tu préfères pas faire</span><input name="pasFaire" maxlength="200" enterkeyhint="next" placeholder="Un truc que tu préfères pas faire"></label>
-      </div>
-      <div class="group">
-        <label class="opt rule"><input type="checkbox" role="switch" name="mixer" value="Oui" aria-controls="mixer-plus"><span class="txt">Je veux mixer</span></label>
-        <div class="fold" id="mixer-plus" hidden>
-          <label class="field"><span class="sr">Ce que tu passes</span><input name="son" maxlength="100" enterkeyhint="next" placeholder="Tu passes quoi ? (house, rap, 2000...)"></label>
-          <label class="field"><span class="sr">Quand</span><input name="creneau" maxlength="60" enterkeyhint="done" placeholder="Plutôt quand ? (le 31 vers 1h...)"></label>
-        </div>
-      </div>
-      <div class="group">
-        <label class="opt rule"><input type="checkbox" role="switch" name="activite-on" aria-controls="activite-plus"><span class="txt">Je veux proposer une activité</span></label>
-        <div class="fold" id="activite-plus" hidden>
-          <label class="field area"><span class="sr">L'activité</span><textarea name="activite" rows="2" maxlength="300" placeholder="Laquelle ? Un jeu, un tournoi, un quiz..."></textarea></label>
-        </div>
-      </div>
-      <p class="sec-f" id="cale-foot">On en parle avant pour caler ça dans le planning, je te dis si ça passe.</p>
-      <h3 class="sec-h">Un mot</h3>
-      <div class="group">
-        <label class="field area"><span class="sr">Mot libre</span><textarea name="mot" rows="2" maxlength="500" placeholder="Autre chose à me dire ?"></textarea></label>
-      </div>
-    </fieldset>
 
     <p class="msg" id="msg" role="alert"></p>
     <div class="actions">
@@ -193,9 +141,9 @@
 <canvas class="fx" id="fx" aria-hidden="true"></canvas>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="config.js?v=3"></script>
-<script src="data.js?v=3"></script>
-<script src="sky.js?v=3"></script>
-<script src="app.js?v=3"></script>
+<script src="config.js?v=11"></script>
+<script src="data.js?v=11"></script>
+<script src="sky.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
