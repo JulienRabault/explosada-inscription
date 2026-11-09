@@ -199,12 +199,15 @@ function carte(c, pos) {
     quizz ? null : h("span", { class: "card-stamp", "aria-hidden": "true" }, "Ok"));
 }
 
+// la fin du deal : le prénom posé sur une ligne de signature, comme au bas d'un contrat
 function signe() {
   const prenom = val("prenom").trim();
+  const jour = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
   return h("div", { class: "signed" },
-    h("p", { class: "signed-k" }, "Le deal"),
-    h("p", { class: "signed-stamp" }, "Signé"),
-    h("p", { class: "signed-who" }, (prenom ? prenom + " · " : "") + REGLES.length + " règles sur " + REGLES.length),
+    h("p", { class: "signed-k" }, "Le deal · " + REGLES.length + " règles sur " + REGLES.length),
+    h("p", { class: "signed-name" }, prenom || "Signé"),
+    h("span", { class: "signed-line", "aria-hidden": "true" }),
+    h("p", { class: "signed-who" }, "Lu et approuvé, le " + jour),
     h("details", { class: "signed-list" }, h("summary", null, "Relire les règles"),
       h("ol", null, REGLES.map(([t, x]) => h("li", null, h("b", null, t), " " + x)))));
 }
@@ -318,11 +321,15 @@ function glisser(carte, libre) {
   carte.addEventListener("pointercancel", lacher);
 }
 
+// le feu part au bout du trait, une fois qu'il est tracé
+const TRAIT_MS = 700;
 function tamponner() {
-  const s = $("deck").querySelector(".signed-stamp");
-  if (!s) return;
-  const r = s.getBoundingClientRect();
-  fx.fire(r.left + r.width / 2, r.top + r.height / 2, 46, null, 160);
+  setTimeout(() => {
+    const s = $("deck").querySelector(".signed-line");
+    if (!s || !s.isConnected) return;
+    const r = s.getBoundingClientRect();
+    fx.fire(r.right, r.top, 40, null, 160);
+  }, TRAIT_MS);
 }
 
 /* ---------- les feux : le ciel du titre, et un calque pour les moments forts ---------- */

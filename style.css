@@ -250,17 +250,20 @@ form.bwd fieldset.step.on{animation:from-left .32s var(--ease-out)}
 
 .signed{grid-area:1/1;position:relative;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 20px 18px;border-radius:18px;background:var(--card);text-align:center}
 .signed-k{margin:0;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--label2)}
-.signed-stamp{margin:14px 0 0;padding:6px 16px 4px;border:3px solid var(--fire);border-radius:10px;font-family:var(--display);font-stretch:75%;font-weight:800;font-size:54px;line-height:.9;text-transform:uppercase;color:var(--fire);rotate:-6deg;animation:tampon .32s var(--ease-out) both}
-@keyframes tampon{from{scale:1.6;opacity:0}}
-.signed-who{margin:16px 0 0;font-size:15px;color:var(--label2);overflow-wrap:anywhere}
-.signed-list{align-self:stretch;margin-top:16px;border-top:1px solid var(--sep);text-align:left}
+/* la signature : le trait se trace, puis le prénom se pose dessus */
+.signed-name{margin:26px 0 0;max-width:100%;font-family:var(--display);font-stretch:75%;font-weight:800;font-size:52px;line-height:.95;letter-spacing:-.01em;text-transform:uppercase;color:var(--label);overflow-wrap:anywhere;animation:signe-nom .6s .3s var(--ease-out) both}
+.signed-line{display:block;align-self:stretch;height:2px;margin:12px 12px 0;border-radius:1px;background:var(--fire);transform-origin:0 50%;animation:signe-trait .7s var(--ease-out) both}
+@keyframes signe-trait{from{transform:scaleX(0)}}
+@keyframes signe-nom{from{opacity:0;transform:translateY(8px)}}
+.signed-who{margin:10px 0 0;font-size:13px;letter-spacing:.02em;color:var(--label2)}
+.signed-list{align-self:stretch;margin-top:20px;border-top:1px solid var(--sep);text-align:left}
 .signed-list summary{padding:12px 0 0;font-size:15px;color:var(--tint);text-align:center;cursor:pointer;list-style:none}
 .signed-list summary::-webkit-details-marker{display:none}
 .signed-list ol{margin:12px 0 0;padding:0 0 0 20px;font-size:15px;line-height:1.4;color:var(--label2)}
 .signed-list li+li{margin-top:8px}
 .signed-list b{color:var(--label)}
-@media (max-width:359px){.card-t{font-size:34px}.signed-stamp{font-size:46px}}
-@media (prefers-reduced-motion:reduce){.pass-opt,.pass-stub,.pass-opt .tick,.card{transition:none}.card-bar{animation:none;opacity:0}.card.non,.signed-stamp{animation:none}}
+@media (max-width:359px){.card-t{font-size:34px}.signed-name{font-size:44px}}
+@media (prefers-reduced-motion:reduce){.pass-opt,.pass-stub,.pass-opt .tick,.card{transition:none}.card-bar{animation:none;opacity:0}.card.non,.signed-name,.signed-line{animation:none}}
 /* l'action principale reste sous le pouce, sur une matière translucide ; le contenu passe dessous */
 .actions{position:sticky;bottom:0;z-index:4;margin:24px -16px 0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(16,13,11,.82);-webkit-backdrop-filter:saturate(160%) blur(20px);backdrop-filter:saturate(160%) blur(20px)}
 .actions .sec-f{padding:0 0 8px}
