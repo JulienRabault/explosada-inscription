@@ -3,7 +3,7 @@
 const $ = id => document.getElementById(id);
 // le deal : une carte par règle, en gros, puis la phrase qui l'explique
 const REGLES = [
-  ["Je m'inscris, je paie", "Sous 48 h. On avance l'argent de la maison : si tu viens pas, c'est nous qui payons. Remboursé seulement si tout le week-end est annulé."],
+  ["Je m'inscris, je paie", "Avant la fin de la semaine où on réserve. On avance l'argent de la maison : si tu viens pas, c'est nous qui payons. Remboursé seulement si tout le week-end est annulé."],
   ["Pas de +1 surprise", "Tu peux ramener quelqu'un si tu préviens avant. Il paie et il participe comme tout le monde."],
   ["Je fais ma part", "Des équipes, chacune avec un chef. Personne a les pieds sous la table."],
   ["Je casse, je le dis", "Ça arrive, c'est pas grave. Mais la caution, c'est tout le monde qui la paie."],
@@ -16,6 +16,17 @@ const CALME = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // la couverture : le prix à annoncer pour les 3 nuits si on est 30, et ce qu'il comprend
 const PRIX = 275;
 const DEDANS = ["La maison", "Tous les repas", "L'alcool", "La musique", "Le DJ", "La déco"];
+// la frise des dates : la même sur l'accueil et sur l'écran de fin. « quand » sert à savoir ce qui est passé
+const ETAPES = {
+  inscriptions: { quand: "2026-11-12", haut: "jeu.", gros: "12", bas: "nov.", titre: "Fin des inscriptions", texte: "Je t'ajoute au groupe des inscrits et je t'envoie comment payer." },
+  reservation: { quand: "2026-11-15", haut: "dim.", gros: "15", bas: "nov.", titre: "On réserve la maison", texte: "Paie avant la fin de la semaine : on a bloqué la maison, il faut la réserver." },
+  formulaire: { quand: "2026-11-30", haut: "fin", gros: "nov.", titre: "Le deuxième formulaire", texte: "Allergies, régime, trajet, draps." },
+  programme: { quand: "2026-12-15", haut: "mi", gros: "déc.", titre: "Le programme", texte: "Les activités, pas obligatoires, et les soirées à thème." },
+  jourJ: { quand: "2026-12-31", haut: "jeu.", gros: "31", bas: "déc.", titre: "On y est", texte: "Arrivée le soir, départ le dimanche matin." },
+};
+const FRISE_COVER = ["inscriptions", "reservation", "jourJ"];
+const FRISE_SUITE = ["inscriptions", "reservation", "formulaire", "programme", "jourJ"];
+
 const TEL = /^[+\d][\d .()-]{5,24}$/;
 const NOM = /^\p{L}[\p{L}'’ .-]*$/u;
 const INSTA = /^[\w.]{1,30}$/;
@@ -401,8 +412,8 @@ function montrer(nom) {
 
 const STATUTS_TXT = {
   // une place n'est validée qu'une fois payée : avant, c'est reçu, puis à payer
-  reçue: { pill: "Reçue", couleur: "orange", titre: "C'est bon, c'est reçu", texte: "Ta place est validée quand t'as payé. Le montant arrive dès qu'on a la maison, il comprend tout : la maison, la bouffe, l'alcool, le reste. Je te dis comment payer à ce moment là." },
-  "à payer": { pill: "À payer", couleur: "orange", titre: "Plus qu'à payer", texte: "Le montant arrive dès qu'on a la maison. Ta place est validée quand t'as payé." },
+  reçue: { pill: "Reçue", couleur: "orange", titre: "C'est bon, c'est reçu", texte: "Ta place est validée quand c'est payé. Jeudi soir, je t'envoie comment faire." },
+  "à payer": { pill: "À payer", couleur: "orange", titre: "Plus qu'à payer", texte: "Je t'envoie le montant et comment payer. Ta place est validée quand c'est payé." },
   payée: { pill: "Validée", couleur: "green", titre: "C'est payé, ta place est validée", texte: "Y a plus rien à faire de ton côté." },
   annulée: { pill: "Annulée", couleur: "gray", titre: "Ton inscription est annulée", texte: "Si c'est pas normal, écris-moi." },
 };
@@ -456,8 +467,36 @@ function montrerStatut(moi, envoyee) {
     ligne("Le deal", REGLES.length + " règles, signées")));
   $("edit-group").hidden = moi.statut === "payée" || moi.statut === "annulée";
   $("edit").onclick = () => editer(moi);
+  $("share").onclick = partager;
   montrer("status");
   if (envoyee) toast("Envoyé");
+}
+
+// le lien du groupe, sans le jeton perso (il vit dans le téléphone, pas dans l'adresse)
+async function partager() {
+  const url = location.origin + location.pathname + location.search;
+  const texte = "Le réveillon Explosada, du 31 au 3 janvier. Inscris-toi là :";
+  if (navigator.share) {
+    try { await navigator.share({ title: "Explosada 7.0", text: texte, url }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  try { await navigator.clipboard.writeText(texte + " " + url); toast("Lien copié"); }
+  catch (e) { toast("Copie le lien en haut de la page"); }
+}
+
+// une étape est passée le lendemain de sa date ; la première qui ne l'est pas s'allume
+function frise(el, cles) {
+  const auj = new Date();
+  let prochaine = true;
+  el.replaceChildren(...cles.map(c => {
+    const e = ETAPES[c];
+    const passee = auj >= new Date(e.quand + "T23:59:59");
+    const etat = passee ? "passee" : prochaine ? "prochaine" : "";
+    if (!passee) prochaine = false;
+    return h("li", { class: etat || null },
+      h("span", { class: "cal", "aria-hidden": "true" }, h("span", { class: "cal-h" }, e.haut), h("span", { class: "cal-g" }, e.gros), e.bas ? h("span", { class: "cal-b" }, e.bas) : null),
+      h("span", { class: "frise-txt" }, h("span", { class: "frise-t" }, e.titre), h("span", { class: "frise-x" }, e.texte)));
+  }));
 }
 
 function editer(moi) {
@@ -531,6 +570,8 @@ function start() {
   $("ticket-cd").textContent = cd;
   $("prix").textContent = euros(PRIX);
   $("dedans").append(...DEDANS.map(m => h("li", null, m)));
+  frise($("frise-cover"), FRISE_COVER);
+  frise($("frise-suite"), FRISE_SUITE);
   form.addEventListener("change", e => {
     // dès qu'on corrige ce qui était signalé, le message s'en va
     if (e.target.closest(".bad")) { marquer(null); $("msg").textContent = ""; }

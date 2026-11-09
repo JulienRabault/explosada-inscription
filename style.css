@@ -355,6 +355,30 @@ body.arrive .actions{animation:monte .7s var(--ease-out) .86s both}
 .infos div{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--sep)}
 .infos dt{flex:none;width:44px;font-size:12px;font-weight:600;line-height:22px;text-transform:uppercase;letter-spacing:.08em;color:var(--label2)}
 .infos dd{margin:0;font-size:16px;line-height:22px}
+/* la frise : une pastille de calendrier par date, reliées par un trait ; la prochaine étape s'allume */
+.frise{list-style:none;margin:0;padding:6px 0;background:var(--card);border-radius:14px}
+.frise li{position:relative;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.frise li:not(:last-child)::after{content:"";position:absolute;left:41px;top:calc(50% + 28px);height:calc(100% - 56px);width:2px;border-radius:1px;background:var(--fill2)}
+.cal{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:56px;border-radius:12px;background:var(--fill);font-variant-numeric:tabular-nums;line-height:1}
+.cal-h{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fire)}
+.cal-g{margin-top:3px;font-family:var(--display);font-stretch:75%;font-weight:800;font-size:24px;text-transform:uppercase;letter-spacing:-.01em}
+.cal-b{margin-top:2px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--label2)}
+.frise-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.frise-t{font-size:16px;font-weight:600;line-height:1.25}
+.frise-x{font-size:14px;line-height:1.35;color:var(--label2)}
+.frise li.prochaine .cal{background:var(--fire);color:var(--on-fire);box-shadow:0 4px 12px -4px rgba(0,0,0,.5)}
+.frise li.prochaine .cal-h,.frise li.prochaine .cal-b{color:var(--on-fire)}
+.frise li.passee .cal,.frise li.passee .frise-txt{opacity:.4}
+.engage{margin:22px 0 0;padding:0 4px;font-size:17px;font-weight:600;line-height:1.35;text-wrap:balance}
+/* le partage : une ligne pleine largeur, icône, action et raison */
+.share{display:flex;align-items:center;gap:14px;width:100%;margin:20px 0 0;padding:14px 16px;border:0;border-radius:14px;background:rgba(245,158,11,.12);color:var(--label);text-align:left;font:inherit;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation;transition:transform .12s var(--ease-out),background .15s ease}
+.share:active{transform:scale(.98);background:rgba(245,158,11,.18)}
+.share-i{flex:none;width:26px;height:26px;fill:none;stroke:var(--fire);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.share-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.share-t{font-size:17px;font-weight:600;color:var(--tint)}
+.share-x{font-size:14px;color:var(--label2)}
+.share+.sec-h{margin-top:28px}
+.infos-a{color:var(--tint);font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 
 /* le prix est un billet, découpé comme la fiche qu'on reçoit à la fin : le montant en haut, les conditions derrière la perforation */
 .pass{margin-top:24px;border-radius:18px;background:var(--card)}
